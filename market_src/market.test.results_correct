@@ -1,0 +1,129 @@
+
+
+
+			 MARKET  MARKET  MARKET
+
+
+
+constructed!
+4 buy orders:
+	Desired: 50 shares  buy at 200 (dollars /shares ) if the market thickness is 1000 shares . 
+	Desired: 1 shares  buy at 51 (dollars /shares ) if the market thickness is 1000 shares . 
+	Desired: 1 shares  buy at 50 (dollars /shares ) if the market thickness is 1000 shares . 
+	Desired: 49 shares  buy at 30 (dollars /shares ) if the market thickness is 1000 shares . 
+	
+4 sell orders:
+	Desired: 1 shares sell at 49 (dollars /shares ) if the market thickness is 1000 shares . 
+	Desired: 50 shares sell at 50 (dollars /shares ) if the market thickness is 1000 shares . 
+	Desired: 1 shares sell at 51 (dollars /shares ) if the market thickness is 1000 shares . 
+	Desired: 40 shares sell at 100 (dollars /shares ) if the market thickness is 1000 shares . 
+	
+
+ Cross at: 50 (dollars /shares )
+volumn of: 51 shares 
+Some price calculations:
+	0 shares 	500 shares 	1100 shares 	2000 shares 	
+	-1 (dollars /shares )	-1 (dollars /shares )	50 (dollars /shares )	50 (dollars /shares )	
+	-1 (dollars /shares )	-1 (dollars /shares )	100 (dollars /shares )	100 (dollars /shares )	
+	-1 (dollars /shares )	-1 (dollars /shares )	0 (dollars /shares )	0 (dollars /shares )	
+	-1 (dollars /shares )	-1 (dollars /shares )	50 (dollars /shares )	50 (dollars /shares )	
+	
+
+plot '-' t 'market' with lines,'-' t '+/-500 shares shares' with lines
+500 49 
+1100 50 
+2000 50 
+
+500 49 
+1100 50 
+2000 50 
+e
+500 61 
+1100 61 
+2000 61 
+
+500 49 
+1100 49 
+2000 49 
+e
+
+plot  '-' t 'fraction of firing' with lines, '-' t 'one' with lines
+1 100000 
+500 200 
+1100 90.9555 
+2000 50.0255 
+e
+0 1
+500 1
+1100 1
+2000 1
+e
+After firing the market:
+3 buy orders:
+	Desired: 1 shares  buy at 50 (dollars /shares ) if the market thickness is 0 shares . 
+	Desired: 1 shares  buy at 50 (dollars /shares ) if the market thickness is 1000 shares . 
+	Desired: 49 shares  buy at 30 (dollars /shares ) if the market thickness is 1000 shares . 
+	
+4 sell orders:
+	Desired: 50 shares sell at 50 (dollars /shares ) if the market thickness is 1000 shares . 
+	Desired: 1 shares sell at 51 (dollars /shares ) if the market thickness is 1000 shares . 
+	Desired: 1 shares sell at 60 (dollars /shares ) if the market thickness is 0 shares . 
+	Desired: 40 shares sell at 100 (dollars /shares ) if the market thickness is 1000 shares . 
+	
+
+Maximal firing at a volumn of: 0 shares 
+********** new market  --  protected firing *************
+2 buy orders:
+	Desired: 1 shares  buy at 60 (dollars /shares ) if the market thickness is 0 shares . 
+	Desired: 100000 shares  buy at 49 (dollars /shares ) if the market thickness is 0 shares . 
+	
+2 sell orders:
+	Desired: 1 shares sell at 50 (dollars /shares ) if the market thickness is 0 shares . 
+	Desired: 100000 shares sell at 61 (dollars /shares ) if the market thickness is 0 shares . 
+	
+
+
+plot '-' t 'market' with lines,'-' t '+/-500 shares shares' with lines
+500 50 
+1100 50 
+2000 50 
+
+500 50 
+1100 50 
+2000 50 
+e
+500 61 
+1100 61 
+2000 61 
+
+500 49 
+1100 49 
+2000 49 
+e
+
+plot  '-' t 'fraction of firing' with lines, '-' t 'one' with lines
+1 1 
+500 0.002 
+1100 0.000909091 
+2000 0.0005 
+e
+0 1
+500 1
+1100 1
+2000 1
+e
+
+plot  '-' t 'fraction of firing' with lines, '-' t 'one' with lines
+1 1 
+500 0.002 
+1100 0.000909091 
+2000 0.0005 
+e
+0 1
+500 1
+1100 1
+2000 1
+e
+
+
+DONE.

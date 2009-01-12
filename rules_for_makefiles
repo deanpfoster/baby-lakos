@@ -1,0 +1,227 @@
+# $Id: rules_for_makefiles 2013 2000-09-01 21:13:45Z foster $
+
+
+################################################################################
+#
+#    Definitions of the compiler etc
+#
+
+
+##################################################################################################
+# -Wall                 : the first set of primary warnings
+# -Wold-style-cast      : generates way to many errors in the g++ library code
+# -Weffc++              : cool, but turn on FEWER_WARN to avoid extranious warnings
+# -W                    : turns on a few extras
+# -Werror               : treats all warnings as errors
+# -Woverloaded-virtual  : catches mismatched signatures in virtual overloads
+# -ggdb                 : correct way of asking for gdb debugging information
+
+
+CC = /usr/local/bin/g++ $(INCLUDES) $(LDFLAGS) 
+#CC = g++ $(INCLUDES) $(LDFLAGS) 
+#CFLAGS = -gstabs+ -Wall -Wold-style-cast -W -Woverloaded-virtual -Werror $(OPT)
+CFLAGS = -g -Wall -Wold-style-cast -W -Woverloaded-virtual -Werror $(OPT)
+
+################################################################################
+# FEWER_WARN : gets rid of warnings that aren't in the code currently being tested, say library code
+# FEWER_WARN = 2>&1 | egrep -v "\/usr.*lib" | grep -v "instantiated from"
+
+
+# ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+
+%.test.o: %.test.cc %.h
+	$(CC) -c $(CFLAGS) $< -o $@ 
+
+%.o: %.cc %.h
+	$(CC) -c $(CFLAGS) $< -o $@ 
+
+############################################################################
+#
+#			DEFINITIONS
+#
+############################################################################
+#
+#                      LEVELIZATION
+#
+ 
+# ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ #
+ 
+above_1 =              $(level_0)  
+above_2 = $(above_1)   $(level_1)  
+above_3 = $(above_2)   $(level_2)  
+above_4 = $(above_3)   $(level_3)  
+above_5 = $(above_4)   $(level_4)  
+above_6 = $(above_5)   $(level_5)  
+above_7 = $(above_6)   $(level_6)  
+above_8 = $(above_7)   $(level_7)  
+above_9 = $(above_8)   $(level_8)  
+above_10= $(above_9)   $(level_9)  
+above_11= $(above_10)  $(level_10) 
+above_12= $(above_11)  $(level_11) 
+above_13= $(above_12)  $(level_12) 
+above_14= $(above_13)  $(level_13) 
+above_15= $(above_14)  $(level_14) 
+above_16= $(above_15)  $(level_15) 
+above_17= $(above_16)  $(level_16) 
+above_18= $(above_17)  $(level_17) 
+above_19= $(above_18)  $(level_18) 
+above_20= $(above_19)  $(level_19) 
+above_21= $(above_20)  $(level_20) 
+above_22= $(above_21)  $(level_21) 
+above_23= $(above_22)  $(level_22) 
+above_24= $(above_23)  $(level_23) 
+above_25= $(above_24)  $(level_24) 
+
+above_infinity = $(above_25)
+
+# ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ #
+# Creating the dependencies for testing executables.  Using the
+# following automatic setup will mean that all levels must be
+# made even if they aren't really depended on.
+
+$(level_0:.o=.test.executable):              $(libs_used)
+$(level_1:.o=.test.executable):  $(above_1)  $(libs_used) 
+$(level_2:.o=.test.executable):  $(above_2)  $(libs_used)
+$(level_3:.o=.test.executable):  $(above_3)  $(libs_used)
+$(level_4:.o=.test.executable):  $(above_4)  $(libs_used) 
+$(level_5:.o=.test.executable):  $(above_5)  $(libs_used) 
+$(level_6:.o=.test.executable):  $(above_6)  $(libs_used)
+$(level_7:.o=.test.executable):  $(above_7)  $(libs_used)
+$(level_8:.o=.test.executable):  $(above_8)  $(libs_used)
+$(level_9:.o=.test.executable):  $(above_9)  $(libs_used)
+$(level_10:.o=.test.executable): $(above_10) $(libs_used)
+$(level_11:.o=.test.executable): $(above_11) $(libs_used)
+$(level_12:.o=.test.executable): $(above_12) $(libs_used)
+$(level_13:.o=.test.executable): $(above_13) $(libs_used)
+$(level_14:.o=.test.executable): $(above_14) $(libs_used)
+$(level_15:.o=.test.executable): $(above_15) $(libs_used)
+$(level_16:.o=.test.executable): $(above_16) $(libs_used)
+$(level_17:.o=.test.executable): $(above_17) $(libs_used)
+$(level_18:.o=.test.executable): $(above_18) $(libs_used)
+$(level_19:.o=.test.executable): $(above_19) $(libs_used)
+$(level_20:.o=.test.executable): $(above_20) $(libs_used)
+$(level_21:.o=.test.executable): $(above_21) $(libs_used)
+$(level_22:.o=.test.executable): $(above_22) $(libs_used)
+$(level_23:.o=.test.executable): $(above_23) $(libs_used)
+$(level_24:.o=.test.executable): $(above_24) $(libs_used)
+$(level_25:.o=.test.executable): $(above_25) $(libs_used)
+
+# ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+
+sources = $(addsuffix .cc, $(basename $(above_infinity)))
+
+# ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+
+-include $(sources:.cc=.d)
+-include $(sources:.cc=.test.d)
+
+
+# ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+# From the GNU make info node and _Gnu make_ book (neither worked unmodified)
+# book version:	$(CC) -M $(CPPFLAGS) $< | sed '\''s/\($*\)\.o[ :]*/\1 $@/g'\'' > $@
+# info version:	$(CC) -M $(CPPFLAGS) $< | sed 's/$*.o/& $@/g' > $@
+#
+# The -rm kills off any .d file that is made with zero length.  It probably
+# could be made shorter and clearer.
+
+# these work--but the two below are more "modern"
+#
+#%.test.d: %.test.cc %.h
+#	$(CC) -M $(CPPFLAGS) $< | sed 's/$*\.o/& $@/g' > $@
+#	-rm `ls -lF *.d | grep " 0 " | sed "s/.* //g" | tr "\n" " "`
+#
+#%.d: %.cc %.h
+#	$(CC) -M $(CPPFLAGS) $< | sed 's/$*\.o/& $@/g' > $@
+#	-rm `ls -lF *.d | grep " 0 " | sed "s/.* //g" | tr "\n" " "`
+
+%.d: %.cc
+	set -e; $(CC) -MM $(CPPFLAGS) $< | sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' > $@; [ -s $@ ] || rm -f $@
+
+%.test.d: %.test.cc
+	set -e; $(CC) -MM $(CPPFLAGS) $< | sed 's/\($*\)\.o[ :]*/\1.o $@ : /g' > $@; [ -s $@ ] || rm -f $@
+
+
+############################################################################
+#
+#		             TESTING RULES
+#
+# make test	  will run all tests
+# make foo.OK     will compile and test foo
+#                 look at foo.results to see what foo.test.cc wrote
+#
+
+test: $(sources:.cc=.OK)
+	touch test
+
+%.test.results_correct:
+	touch $*.test.results_correct
+
+%.OK: %.test.results %.test.results_correct
+	-grep Assertion $*.test.results
+	diff $*.test.results $*.test.results_correct
+	rm $*.test.results
+	rm $*.test.executable
+	touch $*.OK
+
+
+############################################################################
+#
+#            MAKING THE LIBRARY ITSELF
+#
+#  Order shouldn't matter--but for Gnu-Make it does.
+
+../lib/lib$(dir_name).a: local_library.a test
+	-chmod +w ../Include/*.h
+	-cp -pf *.h ../Include
+	-chmod -w ../Include/*.h
+	-cp -f $< $@
+
+../lib/lib$(sub_dir).a: local_library.a test
+	-mkdir -p ../Include/$(sub_dir)
+	-chmod +w ../Include/$(sub_dir)/*.h
+	-cp -pf *.h ../Include/$(sub_dir)/
+	-chmod -w ../Include/$(sub_dir)/*.h
+	-cp -f $< $@
+
+#
+#	-u will only copy newer files, so make copying times faster and make times are shorter.
+#       -p will keep the time stop the same.  So it makes the -u unneed.
+#	cp -uf *.h ../Include
+#       
+
+local_library.a: $(above_infinity) 
+	-rm local_library.a
+	ar -rc $@ $(above_infinity)
+
+#  taking care of the libraries
+
+# the grep -v 1998 should be updated in 1999.  It keeps time stamps
+# from causing diff-errors.  A better date matcher would be cool.
+# It also is used by Time_account to have some timing information removed.
+
+%.test.results: %.test.executable
+	$< </dev/null 2>&1 |grep -v 2000 > $@
+
+# it used to be like so... but make 3.78 broke it???
+#%.test.executable: %.test.o %.o 
+#	$(CC) $+ $(LDLIBS)  -o $@ $(NAME)
+
+%.test.executable: %.test.o %.o 
+	$(CC) $^ $(LDLIBS)  -o $@ $(NAME)
+
+
+############################################################################
+#
+#		TELLING MAKE TO KILL SOME TEMPARARY FILES
+#
+# secondary --> intermediate
+# intermediate means don't recreate unless forced to
+# secondary means don't delete 
+#
+.SECONDARY: $(sources:.cc=.o) 
+.SECONDARY: $(sources:.cc=.d)
+.SECONDARY: $(sources:.cc=.OK)
+.SECONDARY: $(sources:.cc=.test.o)
+.SECONDARY: $(sources:.cc=.test.executable)
+.SECONDARY: $(sources:.cc=.test.results)  
+

@@ -1,0 +1,141 @@
+# $Id: rules_for_makefiles 216 2000-03-03 23:00:45Z foster $
+
+
+################################################################################
+#
+#    Definitions of the compiler etc
+#
+
+CC = g++ $(INCLUDES) $(LDFLAGS) 
+
+##################################################################################################
+# -Wall                 : the first set of primary warnings
+# -Wold-style-cast      : generates way to many errors in the g++ library code
+# -Weffc++              : cool, but turn on FEWER_WARN to avoid extranious warnings
+# -W                    : turns on a few extras
+# -Werror               : treats all warnings as errors
+# -Woverloaded-virtual  : catches mismatched signatures in virtual overloads
+#
+
+CFLAGS = -gstabs+ -Wall -W -Woverloaded-virtual -Werror $(OPT)
+
+# FEWER_WARN : gets rid of warnings that aren't in the code currently being tested, say library code
+#FEWER_WARN = 2>&1 | grep -v "\/" | grep -v instantiated
+
+
+# ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+
+%.test.o: %.test.cc %.h
+	$(CC) -c $(CFLAGS) $< -o $@ $(FEWER_WARN)
+
+%.o: %.cc %.h
+	$(CC) -c $(CFLAGS) $< -o $@ $(FEWER_WARN)
+
+############################################################################
+#
+#			DEPENDENCIES
+#
+
+#  Finding testing source code in both the RCS directory and in the
+#  working directory.  This way merely creating a .test.cc file will
+#  make it ready to be compiled.  OK, its ugly, read the GNU Make
+#  book, section 8.3 on "Functions for file names".
+
+raw_RCS = $(wildcard RCS/*.test.cc,v)
+stripped_RCS = $(basename $(notdir $(raw_RCS)))
+testing_sources_from_RCS = $(addsuffix .cc,$(stripped_RCS))
+
+testing_sources_in_directory = $(wildcard *.test.cc)
+
+sources = $(addsuffix .cc,$(basename $(basename $(testing_sources))))
+
+# ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+
+include $(sources:.cc=.d)
+include $(testing_sources:.cc=.d)
+
+
+# ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+# From the GNU make info node and _Gnu make_ book (neither worked unmodified)
+# book version:	$(CC) -M $(CPPFLAGS) $< | sed '\''s/\($*\)\.o[ :]*/\1 $@/g'\'' > $@
+# info version:	$(CC) -M $(CPPFLAGS) $< | sed 's/$*.o/& $@/g' > $@
+#
+#
+
+%.test.d: %.test.cc %.h
+	$(CC) -M $(CPPFLAGS) $< | sed 's/$*\.o/& $@/g' > $@
+
+%.d: %.cc
+	$(CC) -M $(CPPFLAGS) $< | sed 's/$*\.o/& $@/g' > $@
+
+
+############################################################################
+#
+#		             TESTING RULES
+#
+# make test	  will run all tests
+# make regression will copy the current output to the regression testing directory
+# make foo.OK     will compile and test foo
+#                 look at foo.results to see what foo.test.cc wrote
+#
+
+test: $(testing_sources:.test.cc=.OK)
+	touch test
+
+%.OK: %.test.results
+	touch $*.test.results_correct
+	diff $*.test.results $*.test.results_correct
+	touch $*.OK
+
+
+############################################################################
+#
+#            MAKING THE LIBRARY ITSELF
+#
+#  Order shouldn't matter--but for Gnu-Make it does.
+
+../lib/lib$(dir_name).a: local_library.a
+	-chmod +w ../Include/*.h
+	-cp -pf *.h ../Include
+	-chmod -w ../Include/*.h
+	-cp -f $< $@
+
+../lib/lib$(sub_dir).a: local_library.a
+	-mkdir -p ../Include/$(sub_dir)
+	-chmod +w ../Include/$(sub_dir)/*.h
+	-cp -pf *.h ../Include/$(sub_dir)/
+	-chmod -w ../Include/$(sub_dir)/*.h
+	-cp -f $< $@
+
+#
+#	-u will only copy newer files, so make copying times faster and make times are shorter.
+#       -p will keep the time stop the same.  So it makes the -u unneed.
+#	cp -uf *.h ../Include
+#       
+
+local_library.a: $(above_infinity) test
+	touch local_library.a
+	rm local_library.a
+	ar -rc $@ $(above_infinity)
+
+#  taking care of the libraries
+
+# the grep -v 1998 should be updated in 1999.  It keeps time stamps
+# from causing diff-errors.  A better date matcher would be cool.
+# It also is used by Time_account to have some timing information removed.
+
+%.test.results: %.test.executable
+	$< </dev/null 2>&1 |grep -v 1998 |grep -v 1999 > $@
+
+%.test.executable: %.test.o %.o
+	$(CC) $+ $(LDLIBS)  -o $@ $(NAME)
+
+############################################################################
+#
+#		TELLING MAKE NOT TO KILL TEMPARARY FILES
+#
+.SECONDARY: $(sources) $(sources:.cc=.o) $(sources:.cc=.h)  $(sources:.cc=.OK)
+.SECONDARY: $(sources:.cc=.d)
+.SECONDARY: $(testing_sources) $(testing_sources:.cc=.o)
+.SECONDARY: $(testing_sources:.cc=.executable)   $(testing_sources:.cc=.results)  
+

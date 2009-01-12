@@ -1,0 +1,8 @@
+#!/bin/tcsh
+(perl find_include_guards.pl */*.h) | sort | grep -v Include | (perl match_include_guards.pl)
+
+echo ""
+echo Note: if you get an obvious mismatch--see if there is an unguarded
+echo include in one of the files.  This may confuse the checker into thinking 
+echo that it is checking a guard rather than defining a new include.
+echo ""
